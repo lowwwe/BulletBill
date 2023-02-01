@@ -25,6 +25,9 @@ private:
 
 	void processEvents();
 	void processKeys(sf::Event t_event);
+	void processMouseDown(sf::Event t_event);
+	void processMouseMove(sf::Event t_event);
+	void processMouseRelease(sf::Event t_event);
 	void update(sf::Time t_deltaTime);
 	void render();
 	void moveTarget();
@@ -32,6 +35,7 @@ private:
 	
 	void setupFontAndText();
 	void setupSprite();
+	void setupAimLine();
 
 	sf::RenderWindow m_window; // main SFML window
 	sf::Font m_ArialBlackfont; // font used by message
@@ -44,6 +48,14 @@ private:
 
 	sf::RectangleShape m_wall; // rectangle for wall
 	sf::RectangleShape m_target; // rectangle for target
+	sf::RectangleShape m_cannon;// rectangle for canon
+	sf::Vector2f m_mouseEnd; // mouse end of line
+	sf::Vector2f m_cannonEnd{ 100.0f,550.0f }; // canon end of line
+
+	sf::VertexArray m_aimLine{ sf::Lines };
+	bool m_aiming{ false };
+
+
 	sf::Vector2f m_targetLocation; // position of target,top left corner
 	sf::Vector2f m_targetVelocity{ 0.6f,0.0f }; // velocity of target
 

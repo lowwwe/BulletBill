@@ -77,6 +77,18 @@ void Game::processEvents()
 		{
 			processKeys(newEvent);
 		}
+		if (sf::Event::MouseButtonPressed == newEvent.type)
+		{
+			processMouseDown(newEvent);
+		}
+		if (sf::Event::MouseMoved == newEvent.type)
+		{
+			processMouseMove(newEvent);
+		}
+		if (sf::Event::MouseButtonReleased == newEvent.type)
+		{
+			processMouseRelease(newEvent);
+		}
 	}
 }
 
@@ -94,6 +106,37 @@ void Game::processKeys(sf::Event t_event)
 	if (sf::Keyboard::F1 == t_event.key.code)
 	{
 		m_graphics = !m_graphics;
+	}
+}
+
+void Game::processMouseDown(sf::Event t_event)
+{
+	if (!m_aiming)
+	{
+		m_aiming = true;
+		m_mouseEnd.x = static_cast<float>(t_event.mouseButton.x);
+		m_mouseEnd.y = static_cast<float>(t_event.mouseButton.y);
+
+		setupAimLine();
+	}
+}
+
+void Game::processMouseMove(sf::Event t_event)
+{
+	if (m_aiming)
+	{
+		m_mouseEnd.x = static_cast<float>(t_event.mouseMove.x);
+		m_mouseEnd.y = static_cast<float>(t_event.mouseMove.y);
+		
+		setupAimLine();
+	}
+}
+
+void Game::processMouseRelease(sf::Event t_event)
+{
+	if (m_aiming)
+	{
+		m_aiming = false;
 	}
 }
 
@@ -125,8 +168,13 @@ void Game::render()
 	}
 	else
 	{
+		m_window.draw(m_cannon);
 		m_window.draw(m_wall);
 		m_window.draw(m_target);
+		if (m_aiming)
+		{
+			m_window.draw(m_aimLine);
+		}
 	}
 	m_window.display();
 }
@@ -207,6 +255,11 @@ void Game::setupSprite()
 		std::cout << "problem loading background image" << std::endl;
 	}
 	
+	m_cannon.setFillColor(sf::Color::Black);
+	m_cannon.setSize(sf::Vector2f{ 20.0f,70.0f });
+	m_cannon.setPosition(sf::Vector2f{ 100.0f,550.0f });
+	m_cannon.setOrigin(10.0f, 35.0f);
+	m_cannon.setRotation(45.0f);
 	
 	m_wall.setFillColor(sf::Color::Black);
 	m_wall.setSize(sf::Vector2f{ 32.0f, 100.0f });
@@ -252,4 +305,25 @@ void Game::setupSprite()
 	}
 	m_logoSprite.setTexture(m_logoTexture);
 	m_logoSprite.setPosition(300.0f, 180.0f);
+}
+
+void Game::setupAimLine()
+{
+	sf::Vertex point;
+	float angleRadians = 0.0f;
+	float angleDegrees = 0.0f;
+	sf::Vector2f line;
+	
+	line = m_mouseEnd - m_cannonEnd;
+	angleRadians = atan2(line.y, line.x);
+	angleDegrees = angleRadians * 180.0f / 3.14159265358979323846f;
+	m_cannon.setRotation(angleDegrees + 90.0f);
+	
+	m_aimLine.clear();
+	point.position = m_mouseEnd;
+	point.color = sf::Color::Black;
+	m_aimLine.append(point);
+	point.position = m_cannonEnd;
+	m_aimLine.append(point);
+	
 }
